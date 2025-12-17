@@ -10,6 +10,7 @@ let clouds = document.getElementById('clouds');
 let humidity = document.getElementById('humidity');
 let pressure = document.getElementById('pressure');
 let main = document.querySelector('.error-dis');
+let errorTimeout = null;
 form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (valueSearch.value != '') {
@@ -23,6 +24,9 @@ const searchWeather = () => {
         .then(data => {
             console.log(data);
             if (data.cod == 200){
+                if (errorTimeout) { clearTimeout(errorTimeout); errorTimeout = null; }
+                main.style.display = 'none';
+                main.innerHTML = '';
                 city.querySelector('figcaption').innerText = data.name;
                 city.querySelector('img').src = `https://flagsapi.com/${data.sys.country}/shiny/32.png`;
                 temperature.querySelector('img').src = `http://openweathermap.org/img/wn/${data.weather[0].icon}@4x.png`;
@@ -37,10 +41,12 @@ const searchWeather = () => {
                 main.style.display = 'block';
                 main.style.color = 'red';
                 main.style.fontSize = '15px';
-                // main.classList.add('error');
-                // setTimeout(() => {
-                //     main.classList.remove('error');
-                // }, 1000)
+                if (errorTimeout) clearTimeout(errorTimeout);
+                errorTimeout = setTimeout(() => {
+                    main.style.display = 'none';
+                    main.innerHTML = '';
+                    errorTimeout = null;
+                }, 3000);
             }
             valueSearch.value = '';
         })
